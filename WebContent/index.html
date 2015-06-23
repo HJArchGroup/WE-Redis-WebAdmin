@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redis Monitor</title>
+<style type="text/css">
+* {
+    margin:             0px;
+    padding:            0px;
+}
+body {
+    background-color:   #FFFFFF;
+}
+table {
+    font-family:        Verdana, Arial, Helvetica, sans-serif;
+    font-size:          12px;
+    color:              #333333;
+    background-color:   #FFFFFF;
+    border-collapse:    collapse;
+}
+th {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    background-color:   #FFFFFF;
+    color:              #333333;
+    font-size:          12px;
+    font-weight:        bold;
+}
+td {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    text-align:         right;
+    background-color:   #FFFFEE;
+}
+.background {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    text-align:         right;
+    background-color:   #EEFFEE;
+}
+button {
+    border:             0 none;
+    background:         #FFFFFF;
+    display:            block;
+}
+.foot {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    text-align:         left;
+}
+.good {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    font-weight:        bold;
+    text-align:         center;
+}
+.mid {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    background-color:   #FFFF00;
+    font-weight:        bold;
+    text-align:         center;
+}
+.midlow {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    background-color:   #FF8000;
+    color:              #FFFFFF;
+    font-weight:        bold;
+    text-align:         center;
+}
+.bad {
+    border:             1px solid #ccc;
+    padding:            5px 5px;
+    background-color:   #FF0000;
+    color:              #FFFFFF;
+    font-weight:        bold;
+    text-align:         center;
+}
+.dark {
+    color:              #333300;
+    font-weight:        bold;
+}
+.line {
+    border:             1px solid #ccc;
+    padding:            0px 0px;
+    text-align:         center;
+}
+.title {
+    background-color:   #FFFFFF;
+    color:              #333333;
+    font-size:          18px;
+    text-align:         left;
+}
+.smallTitle {
+    background-color:   #EEEEEE;
+    color:              #333333;
+    font-size:          12px;
+    text-align:         center;
+}
+a:link {
+    color:              #00C0FF;
+    text-decoration:    none;
+}
+a:visited {
+    color:              #333333;
+    text-decoration:    none;
+}
+a:hover {
+    color:              #FFC000;
+    text-decoration:    none;
+}
+a:active {
+    color:              #000000;
+    text-decoration:    none;
+}
+</style>
+</head>
+
+<body>
+
+<table>
+    <tr>
+        <th class="title"><img alt="Hujiang.com" src="data:image/png;base64,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"/>&nbsp;Redis Cluster Dashboard</th>
+    </tr>
+    <tr>
+        <td class="background">
+            <table>
+                <tr>
+                    <th id="tdLastUpdate">Last Update</th>
+                    <td width="150" id="tdLastUpdateValue"></td>
+                    <th id="tdUpdateInterval">Update Interval</th>
+                    <td><button onClick="javascript:speedUp();"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAHsSURBVDjLndQ/SJVhFMfxz/uit0FIiFATVEgdHJJupkMkCC1igzYFNigRNBmFCA7RkK1SNCmE3oYuNJVDUwRi0VDpDRscrkYW+I/ADO6QSrfhvl6vJiSd7Tl8f+c8z8PvnEAUKTiiSZc2dY7ip3mTnpv2i3jEBXk8cNoNFx3fyYGs71546KNsfFeQoliPO6pkrfhg1irKNTqrQuCbux7biucEKYr1u63EijFJaZtR/Zh63a6qkHHPsK24IAXXPFDivX5vZOOSEd+du+p5w5pl3PSIIMUZz1R7p9ccEX4BryIJDRJafHXJTCimT7VlAwV4u3Hj2knmfmfOgBXV+sRCzTowbqoAH1GlykiBZMoYOjSHOpVZktyD14CaPZKkJWU6Q22YlrYf3yNB2jTaQrX4ZDMNHUYL8JxkVAdpNs2iNlSKFbaJGxRalMnjGYtCg+LbsIrSooJqX/T4LXBfV5R56Zas0I9dqMiGYypoEF+3niTY1yHbvWPNcmyEFnBKzL8iphELoUk0qf+noF4TJkMT1lTqjtru2jq7e0jljFVpzUSQihnVa9llr5mDc07KIvDZWxqg1VMnJFw/wHx742/zMWNIRouE1sjuhXigVUKLjCEzBw3QE/MFA1Tnyr4B+o8Rzbc+/BLIP+4Qa+YP3cm9jSNaVgwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDktMTdUMTE6MDY6MTErMDg6MDBgKglVAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA5LTE3VDExOjA2OjExKzA4OjAwEXex6QAAAE10RVh0c29mdHdhcmUASW1hZ2VNYWdpY2sgNi44LjgtNyBRMTYgeDg2XzY0IDIwMTQtMDItMjggaHR0cDovL3d3dy5pbWFnZW1hZ2ljay5vcmdZpF9/AAAAGHRFWHRUaHVtYjo6RG9jdW1lbnQ6OlBhZ2VzADGn/7svAAAAGHRFWHRUaHVtYjo6SW1hZ2U6OkhlaWdodAA1MTKPjVOBAAAAF3RFWHRUaHVtYjo6SW1hZ2U6OldpZHRoADUxMhx8A9wAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/slZOAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTQxMDkyMzE3MZatNlsAAAATdEVYdFRodW1iOjpTaXplADE0LjRLQkKGnh/4AAAAYnRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS9mdHAvMTUyMC9lYXN5aWNvbi5jbi9lYXN5aWNvbi5jbi9jZG4taW1nLmVhc3lpY29uLmNuL3BuZy8xMTc1My8xMTc1MzAzLnBuZ/32kQoAAAAASUVORK5CYII=" /></button></td>
+                    <td width="50" id="tdUpdateIntervalValue"></td>
+                    <td><button onClick="javascript:slowDown();"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAAmJLR0QA/4ePzL8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDktMTdUMTE6MDY6MTErMDg6MDBgKglVAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA5LTE3VDExOjA2OjExKzA4OjAwEXex6QAAAE10RVh0c29mdHdhcmUASW1hZ2VNYWdpY2sgNi44LjgtNyBRMTYgeDg2XzY0IDIwMTQtMDItMjggaHR0cDovL3d3dy5pbWFnZW1hZ2ljay5vcmdZpF9/AAAAGHRFWHRUaHVtYjo6RG9jdW1lbnQ6OlBhZ2VzADGn/7svAAAAGHRFWHRUaHVtYjo6SW1hZ2U6OkhlaWdodAA1MTKPjVOBAAAAF3RFWHRUaHVtYjo6SW1hZ2U6OldpZHRoADUxMhx8A9wAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/slZOAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTQxMDkyMzE3MZatNlsAAAATdEVYdFRodW1iOjpTaXplADE0LjRLQkKGnh/4AAAAYnRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS9mdHAvMTUyMC9lYXN5aWNvbi5jbi9lYXN5aWNvbi5jbi9jZG4taW1nLmVhc3lpY29uLmNuL3BuZy8xMTc1My8xMTc1MzAzLnBuZ/32kQoAAALASURBVEhLrZZNiE1hGMfPMMZCiZKv8pFxF3dBBmMhNCUbFsNKjYWP1EgRscQCCwsiVko+kikrZkE2aoosDHPF4i4YhfKVYpSFb7/fe86Z3jlzb4r7r9+c957zvP/nvOe8z3OmKSmoUqlko2Q8LIH10AHzYSKoz/AM+uA6PISvkLS1tXkY1ogEmbnnFsFuWAdTsnO19Bs+wA04DY88FycZnpiZj4PNcAhmgQZv4QE8hnegpsFCWArTQZ9XcBguwfc8SUgQme+DAzABND4PV8DH8Q1itYCPbRNsAxN9gaNwAkKSpuiZb4dToPl92A93YcSSY0WPdAUch2Vgkj1wDpIx/kGL4SDk5lvgDtQ1V9k1H6OxznGuHnrpGVbgUs+CAW9gIzghqVarHtRymAeaKe/6OdzzR7lc9qBWwlWYAReh2xW0w1pQFyCYR3eu2U64XMBz4R1Gsc7VQ+nZboJOmAqvoQdG7eVIGgbToqI5euilZ6cJLCJlsTxNh/8lPfRSHSZoTcdhnxe34r9IjyfpMGn1Jf9gMBas3DPZi50Mk+AX+EhOgi0jli1iL/jivdFP8DF74bvAyv7phVqaC1akdWC/WQNFec5rxhjrnFEywVA6DOWfNDc3e7CCjoErmAPu7aI85zVjjK1kc5VVrYZMMJiOQ29pKZVK6a8kuQnd8CL8qi2vGWNsks21rhY4QIMmcJnK1hwiurq6PKhbsANqJfGc14yJ5+ihl+ozQS+8h5kQouwxf0kyyjzqaU7US89eE/RDWCKyK65yUCeJLVnqmTt3azoMnv15N7UxXYPZkDe7sF+t0J6eUOBqdXa87Z+CufvT/mNHfQkbYMAVqAE4ArZaA9x2Nq5wA9FKNC6aWyfGOidv13rpmfaVLLDeB8fbt/xrfXB8oWav/8FhEBQlafwnM1e05MZ/9HNlSVQD/m1Jkj/n1fNNNdnE4gAAAABJRU5ErkJggg=="></button></td>
+                    <th id="tdRemoteServer">Remote Server</th>
+                    <td><input id="inputUrl" type="text" value="ws://192.168.177.61/redis-monitor/info" size="50" /></td>
+                    <td><button onClick="javascript:connect();"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAJJSURBVDjLtdNBaJMHAAXg7/9dk0iQwl+MzYpl4KBWqtKqQzxIe9nBIK7XINTDHAwUIgoqiAfxoKfuIAxGDwbkv3jIRCuyw9KTh4ot6lQCE4ZlMVQa0FoaO5rsIGQwctCD7/zeg8d7j8+NAGISBtT9Tf5/hBj6RCrW8giJ6VJQdl1PR9Me15UVdMUIY5hwUY+MREdBQkaPiyaIBTEjSvr96Yd8eX6rLn9pDmOe0Ff+GV6Ix/ziay+NmwslnNRv2fmoPH/QHffsbXvvdc+d+YNR2XnL+p2UCO1zCDerpS3bXbNLn6gtiPTZ5dqW7dWSmzhkX+iIjLeKp9cV7NRwWXllw/3M/czKBmWXNexUOL2u6K2MI6FRPF2dezToMErB5Oqm8IoZM+GV1U3BpBIOPxpcnfMUo6FteDbyrrVHVsONZMNZZwwadMbZZMMNDdnWnpF3nmFbqBu1JbYK1FXqm+XaGXL1zSrqAv1L1NAdfug7+JhJBBB6g2wvC1oiA9Fr023WdPTagEjLy16yePOFFyJDs93DD1uvfOno+99dRQ7Trr5POSqlGjyc7U4O4UVoBjuS+3c/dxvjrVMbl5vnjBptntu43DplHLd3P0/utwMzoVsWpR2fSgWTnki5YCy9fmDxwGJ63ZgLUp4Ek1Mpx6UtuhV64C5y6WPNihMeq6q3M9RVPXaiWUkfk8NdD/4bX82Ps79OdBhfceGb7/ys98P4ghi+95O0P3zrVYcDZf1myIqCKcI8FF2ypGatYwVrapZcUiT/6Rf9/PgX0ObNzTEPgsQAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDktMTdUMTE6MDY6MDMrMDg6MDA7HxjiAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA5LTE3VDExOjA2OjAzKzA4OjAwSkKgXgAAAE10RVh0c29mdHdhcmUASW1hZ2VNYWdpY2sgNi44LjgtNyBRMTYgeDg2XzY0IDIwMTQtMDItMjggaHR0cDovL3d3dy5pbWFnZW1hZ2ljay5vcmdZpF9/AAAAGHRFWHRUaHVtYjo6RG9jdW1lbnQ6OlBhZ2VzADGn/7svAAAAGHRFWHRUaHVtYjo6SW1hZ2U6OkhlaWdodAA1MTKPjVOBAAAAF3RFWHRUaHVtYjo6SW1hZ2U6OldpZHRoADUxMhx8A9wAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/slZOAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTQxMDkyMzE2M2G4ZjYAAAATdEVYdFRodW1iOjpTaXplADE3LjhLQkJK3NLuAAAAYnRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS9mdHAvMTUyMC9lYXN5aWNvbi5jbi9lYXN5aWNvbi5jbi9jZG4taW1nLmVhc3lpY29uLmNuL3BuZy8xMTc1Mi8xMTc1Mjk1LnBuZy5Y51MAAAAASUVORK5CYII=" /></button></td>
+                    <th id="tdUILanguage">UI Language</th>
+                    <td><button onClick="javascript:words=chinese;update(info);"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAABXFBMVEUAAADSVlngY2bgZWjSW17OWFvOWFrOUlbNTFDMRknLPkLJNzrKNzrJLjLJLjHHKCzFJCjGJCjEHyPBHCC/GR6+GBy8FxuyFBjMGh/MGh9KBwlPBwlNBwkAAADsgoTshIfshYbshIbxoIXukIbsg4fsfoDrfX/wn33tiH7rfH/tin7th3/sfYDsgXXyrXH53G72xnDvk3Pqc3XpcXXsgHTvlHPqdHXpcnXqcnXqc3fpamvxomX77WH3zWPqdmjnZmnoZ2noaGnoZmnoaGvmWl7sgVnuj1nvlFjnZFvmWFzlV1zoaVvrgFnmWlzmWVzmW17lTVDlT07kSU7kTk7kTU7kS07mW03mWk3mXU3kSk7lTFHiPkLhPUHiP0HobD7kUEDhO0HiPUHgLDDfKy/fLi/fLC/eIibdHyTeICXdHSLdHiPdGh/dGx/cHCHcGB3cGR7cGyDcFxzdGR7///8BJ3CXAAAAHnRSTlMAT4aFnqCgoKCgoKCgoKCgoKCgoKCgoJXw7itISQEkiJD0AAAAAWJLR0RzQQk9zgAAAAlwSFlzAAALEwAACxMBAJqcGAAAAOpJREFUKM9jYKAeYGRixgKYGBlY5OQV5BUVlJRVFOUVFeXlIYQcCwOrqpq6hqaalraGmiYIQEgdNgZ2XT19A0MjYxNTM3MLOLBkZ+CwsraxtbO3d3B0skcAZw4GThdXN3cPTy9vH19PPzjw52TgCggMCg4JDQuPCI1EgCguBu7oGCCIjYtPSEQC0TwMvEnJIJCSmowMkvgY+NPSsYA0fgaBjEwsIEOQQSgrOycnB4SRQHaWEINwbl4+BsjLFWYQKSjEAgpEGESxS4gyiOUWYQG5YgziEpJYgIQ4g5S0DBYgLQWMQ1ksgJy0AABO6nmaxAE6WAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxMy0wNC0wM1QxNzoxODowOSswODowMOGoXrkAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTAtMDQtMjZUMDA6MDA6MDArMDg6MDCgVTtdAAAATXRFWHRzb2Z0d2FyZQBJbWFnZU1hZ2ljayA2LjguOC03IFExNiB4ODZfNjQgMjAxNC0wMi0yOCBodHRwOi8vd3d3LmltYWdlbWFnaWNrLm9yZ1mkX38AAAAYdEVYdFRodW1iOjpEb2N1bWVudDo6UGFnZXMAMaf/uy8AAAAXdEVYdFRodW1iOjpJbWFnZTo6SGVpZ2h0ADQ4h2CHLQAAABZ0RVh0VGh1bWI6OkltYWdlOjpXaWR0aAA0OH/PR6AAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/slZOAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTI3MjIxMTIwMAkpDe8AAAATdEVYdFRodW1iOjpTaXplADEuMDZLQkJRCt9tAAAAXnRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS9mdHAvMTUyMC9lYXN5aWNvbi5jbi9lYXN5aWNvbi5jbi9jZG4taW1nLmVhc3lpY29uLmNuL3BuZy8yNjQvMjY0NzgucG5nQoda0AAAAABJRU5ErkJggg==" /></button></td>
+                    <td><button onClick="javascript:words=english;update(info);"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAByFBMVEUAAABHR31gYJJZWY5iYpNhYpNpWorSVGbiVGHhVGLhVWLhU2DTRVJMTIDYcHlKSX3h0NJDQ3nUbHM9PXXYipE1NW/gw8YtLWvQRU4jI2TdrLAaGl7ZkJYqK2rOOUTJtb7duLzLIzPJIzPSeIHQdX7DGyzUqq/Uqq65Hi7UJjjUJzm5Hi1LAANPAAJNAAJOAAIAAACGhq+EhK6KirKEhK2Li7KKi7KKgajkk5/zl5/yl5/ylJx3d6WHh698fKh9fal9fKiAf6rt3+b+7u/97e9ycqJ9fahycqF8fal7cJzghpHxipHwipHxi5JgYJZmZppxcaFqYpTinan1pqz0paz0p61lZZlZWZFkZJhkYZXny9T83d/73N9ERINYWJFLS4hYWJBKS4hOPnrVT17qUlvpUVvpVF1JSYc9PX9KSohKRIHgsL35wsf3wcb4w8cfH2s5OXwpKXEoKXEvJWzajJv0nKPzm6LznKRLTYouMHZJSohHSohGNHPPMkbnNEHlNEHmNkPgydXhydTgyNTjydT2zNL5zdH5zdLlIjXlHjLkHjLjHjLkITXwh5HwhZDwhpHvhZDwg4/iHjPjGi/jGy/4yM35yc7////MfU7SAAAAMXRSTlMAT4aFhYWFhYWFhYZPnp6goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCglfDulStISUkBKp1avAAAAAFiS0dEl+ZuG68AAAAJcEhZcwAACxMAAAsTAQCanBgAAAD8SURBVCjPY2CgHmBkYmaBQlY2dg5OMODi5mHgNTQyNjEFQzNzC0srCLDmY+C3sbUztDd0AGI7RydnFygQYBC0c3VzdXMHYQ9PL28fCPAVYhD2c/cPgMLAoOAQCAgVYRANC4fBiMio6BgoEGMQj42LT4DAxKTklFQISJNgkEzPiIfCzKzsnFwIyJNikM4vKITCouKS0jIIKJdhkK2orILC6praunoIaJBjkG9saobBltY2KGhXYFDs6ESArm4o6FFiUO7twwL6lRlUJkzEAiaoMKhOmjwFA0yepMqgNnUaFjBVnUFDUwsL0NRm0NHV08cAero6wDg0wALISQsAeeqeEe4hMT4AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTMtMDQtMDNUMTc6MTg6MDIrMDg6MDDjrwpDAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDExLTA1LTE4VDE5OjU5OjAwKzA4OjAwhF8e/AAAAE10RVh0c29mdHdhcmUASW1hZ2VNYWdpY2sgNi44LjgtNyBRMTYgeDg2XzY0IDIwMTQtMDItMjggaHR0cDovL3d3dy5pbWFnZW1hZ2ljay5vcmdZpF9/AAAAGHRFWHRUaHVtYjo6RG9jdW1lbnQ6OlBhZ2VzADGn/7svAAAAF3RFWHRUaHVtYjo6SW1hZ2U6OkhlaWdodAA0OIdghy0AAAAWdEVYdFRodW1iOjpJbWFnZTo6V2lkdGgANDh/z0egAAAAGXRFWHRUaHVtYjo6TWltZXR5cGUAaW1hZ2UvcG5nP7JWTgAAABd0RVh0VGh1bWI6Ok1UaW1lADEzMDU3MTk5NDAscL2CAAAAEnRFWHRUaHVtYjo6U2l6ZQAxLjFLQkLu4gB6AAAAXHRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS9mdHAvMTUyMC9lYXN5aWNvbi5jbi9lYXN5aWNvbi5jbi9jZG4taW1nLmVhc3lpY29uLmNuL3BuZy8xNS8xNTUzLnBuZ/anagEAAAAASUVORK5CYII=" /></button></td>
+                    <th id="tdOperations">Operations</th>
+                    <td><button onClick="javascript:flush();"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAHWSURBVEjH7ZQ9T9tQFIaf4zSuRZSmNJCBBImyMiGxIYWNkclDpWSAIUtZmfkR0A+JjYUJid+ABCOtM1EKiYSUBbdTqlSVwOd2SBMcf1DSrpzB0vX188g6570Xnuq/KxNelHAICMhioZEPn5FBsXlJnl6aoGctOm9efA1+qCIjuKColOy3hR5fFJPwK1Mg8/mzdf9gfxkHIaSQ/sPZX/YPztbn88hUXFAEWZu9PgqMf7JbDSsG+G7VPwnM9dHaLFKMC2wQJrfctqcjijCupu1tuUwidkpLs8w0aq0RRRhveY0aM2QfmkqWckQxipcfxuOKCSbGwyOK7dXt1XHxsEI7XsdTHRfvKyr1jcsLY4y5vKhvUEnDrfgrAbijW+haCmBpoUuXOyLpTKnB3HdWbk5Vz9vnbdWb052VaDr/gvc7f9V0N93Nq6bG0vkovOU16swx16i3vEcpYniNMjZ2LFppCiEldbF0JgpyIDh7yakLKfaqOEguLpgGccudwyA5dX8UgekcumVkergxvJGEW/n+fPGVmHcfPh7jczsiUH59+mY6r3PN4/efez8lsj1wOMXK0oJdIvm423ZpaaFYGR7z+9bfryRjBCVIGVQGS4wJEu/Ep/r3+g3FdAcF7l1pyQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxMy0xMi0wMVQxNjozMjo0MSswODowMLvO+58AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTMtMTItMDFUMTY6MzI6NDErMDg6MDDKk0MjAAAATXRFWHRzb2Z0d2FyZQBJbWFnZU1hZ2ljayA2LjguOC03IFExNiB4ODZfNjQgMjAxNC0wMi0yOCBodHRwOi8vd3d3LmltYWdlbWFnaWNrLm9yZ1mkX38AAAAYdEVYdFRodW1iOjpEb2N1bWVudDo6UGFnZXMAMaf/uy8AAAAXdEVYdFRodW1iOjpJbWFnZTo6SGVpZ2h0ADY0vOCphAAAABZ0RVh0VGh1bWI6OkltYWdlOjpXaWR0aAA2NERPaQkAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/slZOAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTM4NTg4Njc2MRQfGdsAAAASdEVYdFRodW1iOjpTaXplADEuNUtCQmGAly0AAABidEVYdFRodW1iOjpVUkkAZmlsZTovLy9ob21lL2Z0cC8xNTIwL2Vhc3lpY29uLmNuL2Vhc3lpY29uLmNuL2Nkbi1pbWcuZWFzeWljb24uY24vcG5nLzExMzA1LzExMzA1NzgucG5nT8UuIgAAAABJRU5ErkJggg==" /></button></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td id="tdContent" class="background"></td>
+    </tr>
+    <tr>
+        <td class="foot" id="tdCopyright">&copy;<a href="http://www.hujiang.com" target="_blank">Hujiang.com</a> 2015, All rights reserved.</td>
+    </tr>
+</table>
+
+<script>
+
+var english = ["Master", "Hash Slots", "Network", "Redis CPU", "System CPU", "Redis Memory", "System Memory", "Start", "End", "Condition", "Input", "Output", "Command", "Sys Fore", "User Fore", "Sys Back", "User Back", "1-Min Load", "5-Min Load", "15-Min Load", "Proc(#)", "Used", "RSS", "Peak", "LUA", "Frag Ratio", "Total", "Free", "Shared", "Buffer", "Slave", "Good", "Failed", "Remote Server", "UI Language", "Last Update", "Update Interval", "&copy;<a href=\"http://www.hujiang.com\" target=\"_blank\">Hujiang.com</a> 2015, All rights reserved.", "Redis Operations"];
+var chinese = ["主服务器", "哈希槽", "网络", "Redis 处理器", "系统处理器", "Redis 内存", "系统内存", "起始", "终止", "连接状况", "输入", "输出", "命令", "系统前端", "用户前端", "系统后端", "用户后端", "1分钟负载", "5分钟负载", "15分钟负载", "进程数", "已使用", "进程独占", "峰值", "LUA引擎", "碎片比率", "总计", "可用", "共享", "缓冲", "从服务器", "良好", "失败", "远程状态服务器", "界面语言", "最后更新时间", "更新间隔时间", "&copy;<a href=\"http://www.hujiang.com\" target=\"_blank\">沪江</a> 2015，所有权利予以保留。", "Redis 操作"];
+
+var words   = chinese;//english;
+var info    = null;
+
+//----------------------------------------------------------------------------
+// Global variables.
+
+var webSocket  = null;
+var connected  = false;
+var interval   = 5000;
+var intervalID = null;
+
+//----------------------------------------------------------------------------
+// Websocket callback functions.
+
+function onSocketOpen() {
+    if (webSocket != null) {
+        connected = true;
+        webSocket.send("info");
+        setUpdateInterval();
+    }
+}
+function onSocketMessage(evt) {
+    info = eval("(" + evt.data + ")");
+    update(info);
+}
+function onSocketClose() {
+    connected = false;
+    if (intervalID != null) {
+        window.clearInterval(intervalID);
+    }
+}
+function onSocketError(err) {
+    window.alert("error");
+    onSocketClose();
+}
+
+//----------------------------------------------------------------------------
+// UI operations.
+
+function connect() {
+    if (connected) {
+        webSocket.close();
+    }
+    webSocket = new WebSocket(document.getElementById("inputUrl").value);
+    webSocket.onopen    = onSocketOpen;
+    webSocket.onmessage = onSocketMessage;
+    webSocket.onclose   = onSocketClose;
+    webSocket.onerror   = onSocketError;
+}
+function speedUp() {
+    if (connected) {
+        if (interval > 1000) {
+            interval -= 1000;
+        }
+        setUpdateInterval();
+        updateClusterNodes();
+    }
+}
+function slowDown() {
+    if (connected) {
+        if (interval < 60000) {
+            interval += 1000;
+        }
+        setUpdateInterval();
+        updateClusterNodes();
+    }
+}
+function flush() {
+	if (connected) {
+		webSocket.send("flushall");
+	}
+}
+
+//----------------------------------------------------------------------------
+// Timer and update operation.
+
+function setUpdateInterval() {
+    if (intervalID != null) {
+        window.clearInterval(intervalID);
+    }
+    intervalID = window.setInterval("updateClusterNodes()", interval);
+}
+function updateClusterNodes() {
+    if (connected) {
+        webSocket.send("info");
+    }
+}
+function getTDClass(value) {
+    if (value < 0.2) {
+        return "good";
+    }
+    else if (value < 0.4) {
+        return "mid";
+    }
+    else if (value < 0.6) {
+        return "midlow";
+    }
+    else {
+        return "bad";
+    }
+}
+function update(info) {
+    document.getElementById("tdLastUpdateValue").innerHTML      = info.time;
+    document.getElementById("tdUpdateIntervalValue").innerHTML  = (interval / 1000) + "s";
+    document.getElementById("tdRemoteServer").innerHTML         = words[33];
+    document.getElementById("tdUILanguage").innerHTML           = words[34];
+    document.getElementById("tdLastUpdate").innerHTML           = words[35];
+    document.getElementById("tdUpdateInterval").innerHTML       = words[36];
+    document.getElementById("tdCopyright").innerHTML            = words[37];
+    document.getElementById("tdOperations").innerHTML           = words[38];
+
+    var menuString = "<table>";
+    
+    for (var i = 0; i < info.masters.length; ++ i) {
+        if (i != 0) {
+            menuString += "<tr><td canvasHeight=\"10\" colspan=\"24\" class=\"background\"></td></tr>";
+        }
+        menuString += "<tr>";
+        menuString += "<th rowspan=\"2\">" + words[0] + " (" + info.masters[i].epoch + ")</th>";
+        menuString += "<th colspan=\"2\">" + words[1] + "</th>";
+        menuString += "<th colspan=\"4\">" + words[2] + "</th>";
+        menuString += "<th colspan=\"4\">" + words[3] + "</th>";
+        menuString += "<th colspan=\"4\">" + words[4] + "</th>";
+        menuString += "<th colspan=\"4\">" + words[5] + "</th>";
+        menuString += "<th colspan=\"4\">" + words[6] + "</th>";
+        menuString += "</tr>";
+        
+        menuString += "<tr>";
+        menuString += "<td class=\"smallTitle\">" + words[7] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[8] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[9] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[10] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[11] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[12] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[13] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[14] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[15] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[16] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[17] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[18] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[19] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[20] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[21] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[22] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[23] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[24] + "</td>";
+        //menuString += "<td class=\"smallTitle\">" + words[25] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[26] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[27] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[28] + "</td>";
+        menuString += "<td class=\"smallTitle\">" + words[29] + "</td>";
+        menuString += "</tr>";
+        
+        menuString += "<tr>";
+        menuString += "<td>" + info.masters[i].host + ":" + info.masters[i].port + "</td>";
+        menuString += "<td>" + info.masters[i].slotStart + "</td>";
+        menuString += "<td>" + info.masters[i].slotEnd + "</td>";
+        if (info.masters[i].connected == "true") {
+            menuString += "<td class=\"good\">" + words[31] + "</td>";
+            
+            menuString += "<td>" + info.masters[i].stats.in + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].stats.out + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].stats.cmd + "</td>";
+            menuString += "<td>" + info.masters[i].CPU.sys + "<font class=\"dark\">s</font></td>";
+            menuString += "<td>" + info.masters[i].CPU.user + "<font class=\"dark\">s</font></td>";
+            menuString += "<td>" + info.masters[i].CPU.sysChildren + "<font class=\"dark\">s</font></td>";
+            menuString += "<td>" + info.masters[i].CPU.userChildren + "<font class=\"dark\">s</font></td>";
+            menuString += "<td class=\"" + getTDClass(info.masters[i].sysinfo.load1Min) + "\">" + info.masters[i].sysinfo.load1Min + "</td>";
+            menuString += "<td class=\"" + getTDClass(info.masters[i].sysinfo.load5Min) + "\">" + info.masters[i].sysinfo.load5Min + "</td>";
+            menuString += "<td class=\"" + getTDClass(info.masters[i].sysinfo.load15Min) + "\">" + info.masters[i].sysinfo.load15Min + "</td>";
+            menuString += "<td>" + info.masters[i].sysinfo.processes + "</td>";
+            menuString += "<td>" + info.masters[i].memory.used + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].memory.rss + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].memory.peak + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].memory.lua + "<font class=\"dark\">B</font></td>";
+            //menuString += "<td>" + info.masters[i].memory.fragRatio + "</td>";
+            menuString += "<td>" + info.masters[i].sysinfo.totalRam + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].sysinfo.freeRam + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].sysinfo.sharedRam + "<font class=\"dark\">B</font></td>";
+            menuString += "<td>" + info.masters[i].sysinfo.bufferRam + "<font class=\"dark\">B</font></td>";
+            menuString += "</tr>";
+            
+            if (info.masters[i].slaves.length > 0) {
+                menuString += "<tr canvasHeight=\"2\"><td colspan=\"5\" class=\"line\"></td></tr>";
+                
+                for (var j = 0; j < info.masters[i].slaves.length; ++ j) {
+                    menuString += "<tr>";
+                    menuString += "<th>" + words[30] + " (" + info.masters[i].slaves[j].epoch + ")</th>";
+                    menuString += "<td colspan=\"2\">" + info.masters[i].slaves[j].host + ":" + info.masters[i].slaves[j].port + "</td>";
+                    if (info.masters[i].slaves[j].connected == "true") {
+                        menuString += "<td class=\"good\">" + words[31] + "</td>";
+                    }
+                    else {
+                        menuString += "<td class=\"bad\">" + words[32] + "</td>";
+                    }
+                    menuString += "<td>" + info.masters[i].slaves[j].stats.in + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].stats.out + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].stats.cmd + "</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].CPU.sys + "<font class=\"dark\">s</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].CPU.user + "<font class=\"dark\">s</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].CPU.sysChildren + "<font class=\"dark\">s</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].CPU.userChildren + "<font class=\"dark\">s</font></td>";
+                    menuString += "<td class=\"" + getTDClass(info.masters[i].slaves[j].sysinfo.load1Min) + "\">" + info.masters[i].slaves[j].sysinfo.load1Min + "</td>";
+                    menuString += "<td class=\"" + getTDClass(info.masters[i].slaves[j].sysinfo.load5Min) + "\">" + info.masters[i].slaves[j].sysinfo.load5Min + "</td>";
+                    menuString += "<td class=\"" + getTDClass(info.masters[i].slaves[j].sysinfo.load15Min) + "\">" + info.masters[i].slaves[j].sysinfo.load15Min + "</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].sysinfo.processes + "</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].memory.used + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].memory.rss + "<font class=\"dark\">B</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].memory.peak + "<font class=\"dark\">B</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].memory.lua + "<font class=\"dark\">B</td>";
+                    //menuString += "<td>" + info.masters[i].slaves[j].memory.fragRatio + "</td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].sysinfo.totalRam + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].sysinfo.freeRam + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].sysinfo.sharedRam + "<font class=\"dark\">B</font></td>";
+                    menuString += "<td>" + info.masters[i].slaves[j].sysinfo.bufferRam + "<font class=\"dark\">B</font></td>";
+                    menuString += "</tr>";
+                }
+            }
+        }
+        else {
+            menuString += "<td class=\"bad\">" + words[32] + "</td>";
+            
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            //menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            menuString += "<td></td>";
+            
+            menuString += "</tr>";
+        }
+    }
+    menuString += "</table>";
+    
+    document.getElementById("tdContent").innerHTML = menuString;
+}
+
+connect();
+</script>
+
+</body>
+
+</html>
