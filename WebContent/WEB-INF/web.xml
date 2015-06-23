@@ -13,7 +13,7 @@
         <servlet-class>com.hujiang.redis.monitor.servlet.InitServlet</servlet-class>
         <init-param>
             <param-name>RedisServers</param-name>
-            <param-value>192.168.177.61:10011</param-value>
+            <param-value>192.168.0.1:6379</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
